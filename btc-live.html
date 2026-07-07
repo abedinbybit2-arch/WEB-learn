@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>BTC/USDT · Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0F14;
+    --card: #121820;
+    --card-2: #0F151C;
+    --border: #1E2731;
+    --text: #EAF0F5;
+    --muted: #7C8A99;
+    --accent: #F7931A;
+    --up: #16C784;
+    --down: #EA3943;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+  html, body {
+    height:100%;
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 50% 0%, rgba(247,147,26,0.08), transparent 60%);
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    min-height:100vh;
+    padding: 28px 16px 40px;
+  }
+
+  .app {
+    width:100%;
+    max-width: 420px;
+  }
+
+  /* ---------- Header ---------- */
+  .topbar {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+    padding: 0 4px;
+  }
+
+  .pair {
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+  }
+
+  .pair .sym {
+    font-weight:800;
+    font-size:15px;
+    letter-spacing:0.3px;
+  }
+  .pair .quote {
+    font-size:12px;
+    color: var(--muted);
+    font-weight:600;
+  }
+
+  .live-pill {
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.6px;
+    color: var(--up);
+    background: rgba(22,199,132,0.08);
+    border:1px solid rgba(22,199,132,0.25);
+    padding:5px 10px;
+    border-radius:20px;
+  }
+
+  .live-pill.offline {
+    color: var(--down);
+    background: rgba(234,57,67,0.08);
+    border-color: rgba(234,57,67,0.25);
+  }
+
+  .dot {
+    width:6px; height:6px;
+    border-radius:50%;
+    background: var(--up);
+    box-shadow: 0 0 0 0 rgba(22,199,132,0.6);
+    animation: pulse 1.6s infinite;
+  }
+  .offline .dot {
+    background: var(--down);
+    animation:none;
+  }
+
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(22,199,132,0.55); }
+    70%  { box-shadow: 0 0 0 7px rgba(22,199,132,0); }
+    100% { box-shadow: 0 0 0 0 rgba(22,199,132,0); }
+  }
+
+  /* ---------- Main card ---------- */
+  .card {
+    background: linear-gradient(180deg, var(--card), var(--card-2));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 26px 22px 20px;
+    position:relative;
+    overflow:hidden;
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    top:-40%; right:-20%;
+    width:220px; height:220px;
+    background: radial-gradient(circle, rgba(247,147,26,0.12), transparent 70%);
+    pointer-events:none;
+  }
+
+  .label-row {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color: var(--muted);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:0.4px;
+    text-transform:uppercase;
+  }
+
+  .btc-icon {
+    width:16px; height:16px;
+    border-radius:50%;
+    background: var(--accent);
+    color:#0B0F14;
+    font-size:10px;
+    font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  .price-wrap {
+    margin-top:14px;
+    display:flex;
+    align-items:flex-end;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  #price {
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size: 42px;
+    line-height:1;
+    letter-spacing:-0.5px;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.25s ease;
+  }
+
+  #price sup {
+    font-size:20px;
+    font-weight:600;
+    opacity:0.55;
+  }
+
+  .flash-up   { animation: flashUp 0.6s ease; }
+  .flash-down { animation: flashDown 0.6s ease; }
+
+  @keyframes flashUp {
+    0%   { color:#16C784; text-shadow:0 0 18px rgba(22,199,132,0.55); }
+    100% { color:var(--text); text-shadow:none; }
+  }
+  @keyframes flashDown {
+    0%   { color:#EA3943; text-shadow:0 0 18px rgba(234,57,67,0.55); }
+    100% { color:var(--text); text-shadow:none; }
+  }
+
+  .change-badge {
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-size:13px;
+    font-weight:700;
+    padding:5px 10px;
+    border-radius:8px;
+    margin-bottom:4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .change-badge.up   { color:var(--up);  background:rgba(22,199,132,0.1); }
+  .change-badge.down { color:var(--down); background:rgba(234,57,67,0.1); }
+
+  .sub-label {
+    font-size:11px;
+    color: var(--muted);
+    margin-top:8px;
+    display:flex;
+    justify-content:space-between;
+  }
+
+  /* ---------- Sparkline ---------- */
+  .spark-box {
+    margin-top:18px;
+    height:64px;
+    position:relative;
+  }
+  #spark { width:100%; height:100%; display:block; }
+  .spark-caption {
+    display:flex;
+    justify-content:space-between;
+    font-size:10px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+
+  /* ---------- Stats grid ---------- */
+  .stats {
+    margin-top:20px;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:1px;
+    background: var(--border);
+    border-radius:14px;
+    overflow:hidden;
+    border:1px solid var(--border);
+  }
+
+  .stat {
+    background: var(--card-2);
+    padding:12px 14px;
+  }
+  .stat .k {
+    font-size:10px;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    font-weight:700;
+  }
+  .stat .v {
+    margin-top:5px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:14px;
+    font-weight:600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .footer {
+    margin-top:16px;
+    text-align:center;
+    font-size:11px;
+    color: var(--muted);
+    line-height:1.6;
+    padding: 0 8px;
+  }
+  .footer b { color:#9AA7B4; }
+
+  @media (max-width:360px){
+    #price{ font-size:36px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="topbar">
+    <div class="pair">
+      <span class="sym">BTC / USDT</span>
+      <span class="quote">Binance Spot</span>
+    </div>
+    <div class="live-pill" id="livePill">
+      <span class="dot"></span><span id="liveText">LIVE</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label-row"><span class="btc-icon">₿</span> Last Price</div>
+
+    <div class="price-wrap">
+      <div id="price">$--<span></span></div>
+    </div>
+
+    <div style="margin-top:6px;">
+      <span class="change-badge up" id="changeBadge">▲ 0.00%</span>
+    </div>
+
+    <div class="sub-label">
+      <span>24h change</span>
+      <span id="updatedAt">syncing…</span>
+    </div>
+
+    <div class="spark-box">
+      <canvas id="spark"></canvas>
+    </div>
+    <div class="spark-caption">
+      <span>last ~90s</span>
+      <span id="sparkRange">--</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k">24h High</div><div class="v" id="statHigh">--</div></div>
+      <div class="stat"><div class="k">24h Low</div><div class="v" id="statLow">--</div></div>
+      <div class="stat"><div class="k">24h Vol (BTC)</div><div class="v" id="statVolBase">--</div></div>
+      <div class="stat"><div class="k">24h Vol (USDT)</div><div class="v" id="statVolQuote">--</div></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Data via <b>Binance public REST API</b>, refreshed every 1 second.<br>
+    Not financial advice.
+  </div>
+</div>
+
+<script>
+(function(){
+  const priceEl      = document.getElementById('price');
+  const changeBadge  = document.getElementById('changeBadge');
+  const updatedAt    = document.getElementById('updatedAt');
+  const statHigh     = document.getElementById('statHigh');
+  const statLow      = document.getElementById('statLow');
+  const statVolBase  = document.getElementById('statVolBase');
+  const statVolQuote = document.getElementById('statVolQuote');
+  const livePill     = document.getElementById('livePill');
+  const liveText     = document.getElementById('liveText');
+  const sparkRange   = document.getElementById('sparkRange');
+  const canvas       = document.getElementById('spark');
+  const ctx          = canvas.getContext('2d');
+
+  let lastPrice = null;
+  const history = []; // {t, p}
+  const MAX_POINTS = 90; // ~90 seconds at 1s interval
+
+  function fmtUSD(n, decimals=2){
+    return '$' + Number(n).toLocaleString('en-US', {minimumFractionDigits:decimals, maximumFractionDigits:decimals});
+  }
+
+  function fmtCompact(n){
+    return Number(n).toLocaleString('en-US', {maximumFractionDigits:2});
+  }
+
+  function resizeCanvas(){
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width  = rect.width  * devicePixelRatio;
+    canvas.height = rect.height * devicePixelRatio;
+    canvas.style.width  = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+
+  function drawSpark(){
+    const w = canvas.width, h = canvas.height;
+    ctx.clearRect(0,0,w,h);
+    if(history.length < 2) return;
+
+    const prices = history.map(pt => pt.p);
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    const range = (max - min) || 1;
+    const pad = h * 0.12;
+
+    const up = prices[prices.length-1] >= prices[0];
+    const lineColor = up ? '#16C784' : '#EA3943';
+    const fillColor = up ? 'rgba(22,199,132,0.14)' : 'rgba(234,57,67,0.14)';
+
+    ctx.beginPath();
+    history.forEach((pt, i) => {
+      const x = (i / (MAX_POINTS-1)) * w;
+      const y = h - pad - ((pt.p - min) / range) * (h - pad*2);
+      if(i === 0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    });
+    ctx.lineWidth = 2 * devicePixelRatio;
+    ctx.strokeStyle = lineColor;
+    ctx.lineJoin = 'round';
+    ctx.stroke();
+
+    // fill under line
+    const lastX = ((history.length-1)/(MAX_POINTS-1)) * w;
+    ctx.lineTo(lastX, h);
+    ctx.lineTo(0, h);
+    ctx.closePath();
+    ctx.fillStyle = fillColor;
+    ctx.fill();
+
+    sparkRange.textContent = fmtUSD(min,0) + ' – ' + fmtUSD(max,0);
+  }
+
+  function setOnline(ok){
+    if(ok){
+      livePill.classList.remove('offline');
+      liveText.textContent = 'LIVE';
+    } else {
+      livePill.classList.add('offline');
+      liveText.textContent = 'RECONNECTING';
+    }
+  }
+
+  async function tick(){
+    try{
+      const res = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT', {cache:'no-store'});
+      if(!res.ok) throw new Error('bad response');
+      const d = await res.json();
+
+      const price   = parseFloat(d.lastPrice);
+      const changeP = parseFloat(d.priceChangePercent);
+      const high    = parseFloat(d.highPrice);
+      const low     = parseFloat(d.lowPrice);
+      const volBase = parseFloat(d.volume);
+      const volQuote= parseFloat(d.quoteVolume);
+
+      // price + flash direction
+      priceEl.textContent = fmtUSD(price);
+      if(lastPrice !== null){
+        priceEl.classList.remove('flash-up','flash-down');
+        void priceEl.offsetWidth; // restart animation
+        if(price > lastPrice) priceEl.classList.add('flash-up');
+        else if(price < lastPrice) priceEl.classList.add('flash-down');
+      }
+      lastPrice = price;
+
+      // 24h change badge
+      const isUp = changeP >= 0;
+      changeBadge.className = 'change-badge ' + (isUp ? 'up' : 'down');
+      changeBadge.textContent = (isUp ? '▲ ' : '▼ ') + Math.abs(changeP).toFixed(2) + '%';
+
+      statHigh.textContent = fmtUSD(high);
+      statLow.textContent  = fmtUSD(low);
+      statVolBase.textContent  = fmtCompact(volBase) + ' BTC';
+      statVolQuote.textContent = '$' + fmtCompact(volQuote/1e6) + 'M';
+
+      const now = new Date();
+      updatedAt.textContent = now.toLocaleTimeString('en-US', {hour12:false});
+
+      history.push({t: Date.now(), p: price});
+      if(history.length > MAX_POINTS) history.shift();
+      drawSpark();
+
+      setOnline(true);
+    } catch(err){
+      setOnline(false);
+    }
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+
+</body>
+</html>
